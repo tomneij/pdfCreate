@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
-using PdfTet.Pechkin;
-using Pechkin;
-using Pechkin.Synchronized;
-using Rotativa;
-using Rotativa.MVC;
+
+
 
 namespace PdfTest.Controllers
 {
@@ -32,73 +32,34 @@ namespace PdfTest.Controllers
 
         public ActionResult Index()
         {
+            ViewBag.Message = "Your index page.";
+
             return View();
         }
 
 
-        public ActionResult Rotativa(string url)
-        {        
-            return new UrlAsPdf(url) {
-                 FileName = "Rotativa.pdf",
-                 RotativaOptions = new Rotativa.Core.DriverOptions
-                 {
-                      PageMargins = new Rotativa.Core.Options.Margins(0,0,0,0),
-                 }
-                //PageMargins = new Rotativa.Core.Options.Margins(0, 0, 0, 0)
-            };
-        }
-
-
-        public ActionResult Pechkin(string url)
+        public ActionResult Html2pdfRocket(string url)
         {
-            var pdf = GetPdf(url);
+            using (var client = new WebClient())
+            {
+                // Build the conversion options 
+                NameValueCollection options = new NameValueCollection();
+                options.Add("apikey", "6c9b0e56-829d-4734-8984-4bb3b39c23e2");
+                options.Add("value", url);
+                options.Add("ViewPort", "1500x1000");
+                //options.Add("UsePrintStylesheet", "true");
+                options.Add("JavascriptDelay", "1000");
+                //options.Add("UseGrayscale", "true");
 
-            // send the PDF file to browser
-            FileResult fileResult = new FileContentResult(pdf, "application/pdf");
-            fileResult.FileDownloadName = "Pechkin.pdf";
+                // Call the API convert to a PDF
+                MemoryStream ms = new MemoryStream(client.UploadValues("http://api.html2pdfrocket.com/pdf", options));
 
-            return fileResult;
+                // Make the file a downloadable attachment - comment this out to show it directly inside
+                HttpContext.Response.AddHeader("content-disposition", "attachment; filename=PDF.pdf");
 
+                // Return the file as a PDF
+                return new FileStreamResult(ms, "application/pdf");
+            } 
         }
-
-        private byte[] GetPdf(string url)
-        {
-            // create global configuration object
-            GlobalConfig gc = new GlobalConfig();
-
-            // set it up using fluent notation
-            gc.SetMargins(new System.Drawing.Printing.Margins(0, 0, 0, 0))
-                
-              .SetDocumentTitle("Test document")
-              .SetPaperSize(System.Drawing.Printing.PaperKind.A4);
-            
-            //... etc
-
-            // create converter
-            IPechkin pechkin = new SynchronizedPechkin(gc);
-
-            // create document configuration object
-            ObjectConfig oc = new ObjectConfig();
-
-            // and set it up using fluent notation too
-            oc
-               .SetCreateExternalLinks(false)
-               .SetPrintBackground(true)
-
-               .SetLoadImages(true)
-               .SetScreenMediaType(true)
-               .SetFallbackEncoding(Encoding.ASCII)
-               .SetPageUri(url);
-            //... etc
-
-            // convert document
-            byte[] pdfBuf = pechkin.Convert(oc);
-
-            return pdfBuf;
-        }
-
-
-
-
     }
 }

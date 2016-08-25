@@ -2,28 +2,19 @@
     ViewBag.Title = "Home Page";
 }
 
+
 <div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+    <h1>PDF Tester</h1>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-       
-        <h2>Pechkin</h2>
-        <form action="/Home/Pechkin">
+    <div class="col-md-4">   
 
-            <input type="text" name="Url" />
-            <input type="submit" name="subit" value="generate!" />
-        </form>
 
-        <hr />
+        <h2>Get PDF</h2>
+        <form action="/Home/Html2pdfRocket">
 
-        <h2>Rotativa!</h2>
-        <form action="/Home/Rotativa">
-
-            <input type="text" name="Url" />
+            Url: <input type="text" name="Url" />
             <input type="submit" name="subit" value="generate!" />
         </form>
     </div>
